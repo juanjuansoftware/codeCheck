@@ -11,6 +11,9 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.ResponseHandlerInterface;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -39,16 +42,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkNum(String code){
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get(MainActivity.this, "http://api.map.baidu.com/telematics/v3/weather?location=%E5%98%89%E5%85%B4&output=json&ak=5slgyqGDENN7Sy7pw29IUvrZ", new AsyncHttpResponseHandler() {
+        codeResultView.setText("查询中，请稍后...");
+        client.get(MainActivity.this, "http://211.141.223.109:3988/search.php?phone="+code, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                        String result = new String(responseBody);
-                        codeResultView.setText(result);
+                        if (responseBody!=null){
+                            String result = new String(responseBody);
+
+                            JSONObject jsonObject ;
+                            try {
+                                jsonObject= new JSONObject(result);
+                                if (jsonObject!=null){
+                                    String msg = jsonObject.getString("msg");
+                                    if (msg!=null){
+                                        codeResultView.setText(msg);
+                                    }
+                                }
+                            }catch (JSONException e){
+                            }
+                        }
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                        codeResultView.setText("请求失败");
                     }
                 }
         );
