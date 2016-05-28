@@ -2,6 +2,8 @@ package com.example.w22ee.codecheck;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         codeInputText = (EditText) findViewById(R.id.codeInputText);
+        codeInputText.setInputType(InputType.TYPE_CLASS_PHONE);
+        codeInputText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(11)});
         codeResultView = (TextView) findViewById(R.id.codeResultView);
         checkButton = (Button) findViewById(R.id.checkButton);
         checkButton.setOnClickListener(new View.OnClickListener() {
@@ -42,10 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkNum(String code){
         AsyncHttpClient client = new AsyncHttpClient();
+        checkButton.setEnabled(false);
         codeResultView.setText("查询中，请稍后...");
         client.get(MainActivity.this, "http://211.141.223.109:3988/search.php?phone="+code, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        checkButton.setEnabled(true);
                         if (responseBody!=null){
                             String result = new String(responseBody);
 
@@ -65,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        checkButton.setEnabled(true);
                         codeResultView.setText("请求失败");
                     }
                 }
