@@ -1,7 +1,7 @@
 package com.example.w22ee.codecheck;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.View;
@@ -11,16 +11,11 @@ import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.URI;
-
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpResponse;
 
 public class MainActivity extends AppCompatActivity {
     private EditText codeInputText;
@@ -44,27 +39,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void checkNum(String code){
+    private void checkNum(String code) {
         AsyncHttpClient client = new AsyncHttpClient();
         checkButton.setEnabled(false);
         codeResultView.setText("查询中，请稍后...");
-        client.get(MainActivity.this, "http://211.141.223.109:3988/search.php?phone="+code, new AsyncHttpResponseHandler() {
+        client.get(MainActivity.this, "http://211.141.223.109:3988/search.php?phone=" + code, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         checkButton.setEnabled(true);
-                        if (responseBody!=null){
+                        if (responseBody != null) {
                             String result = new String(responseBody);
 
-                            JSONObject jsonObject ;
+                            JSONObject jsonObject;
                             try {
-                                jsonObject= new JSONObject(result);
-                                if (jsonObject!=null){
+                                jsonObject = new JSONObject(result);
+                                if (jsonObject != null) {
                                     String msg = jsonObject.getString("msg");
-                                    if (msg!=null){
+                                    if (msg != null) {
                                         codeResultView.setText(msg);
                                     }
                                 }
-                            }catch (JSONException e){
+                            } catch (JSONException e) {
                             }
                         }
                     }
