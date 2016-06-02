@@ -9,13 +9,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
     private EditText codeInputText;
@@ -40,36 +41,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkNum(String code) {
-        AsyncHttpClient client = new AsyncHttpClient();
+
         checkButton.setEnabled(false);
         codeResultView.setText("查询中，请稍后...");
-        client.get(MainActivity.this, "http://211.141.223.109:3988/search.php?phone=" + code, new AsyncHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                        checkButton.setEnabled(true);
-                        if (responseBody != null) {
-                            String result = new String(responseBody);
-
-                            JSONObject jsonObject;
-                            try {
-                                jsonObject = new JSONObject(result);
-                                if (jsonObject != null) {
-                                    String msg = jsonObject.getString("msg");
-                                    if (msg != null) {
-                                        codeResultView.setText(msg);
-                                    }
-                                }
-                            } catch (JSONException e) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, "http://211.141.223.109:3988/search.php?phone=" + code, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                checkButton.setEnabled(true);
+                if (response != null) {
+                    JSONObject jsonObject;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        if (jsonObject != null) {
+                            String msg = jsonObject.getString("msg");
+                            if (msg != null) {
+                                codeResultView.setText(msg);
                             }
                         }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                        checkButton.setEnabled(true);
-                        codeResultView.setText("请求失败");
+                    } catch (JSONException e) {
                     }
                 }
-        );
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                checkButton.setEnabled(true);
+                codeResultView.setText("请求失败");
+            }
+        });
+
+        Volley.newRequestQueue(MainActivity.this).add(stringRequest);
+
+
     }
 }
